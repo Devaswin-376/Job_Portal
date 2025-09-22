@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
-    'account',
+    'account.apps.AccountConfig',
+    'jobs',
 ]
 
 MIDDLEWARE = [
@@ -144,11 +146,19 @@ SIMPLE_JWT ={
     'BLACKLIST_AFTER_ROTATION': True,
 }
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "devaswinksukumaran@gmail.com"           # replace with your Gmail
-EMAIL_HOST_PASSWORD = "zqrk dzus uugb uozk"         # generate app password in Google
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+#EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+#EMAIL_HOST = "smtp.gmail.com"
+#EMAIL_PORT = 587
+#EMAIL_USE_TLS = True
+#EMAIL_HOST_USER = "devaswinksukumaran@gmail.com"           # replace with your Gmail
+#EMAIL_HOST_PASSWORD = "zqrk dzus uugb uozk"         # generate app password in Google
+#DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
+
+#settings for Media upload
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR,'media')

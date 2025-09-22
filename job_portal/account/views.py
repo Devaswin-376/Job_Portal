@@ -4,16 +4,21 @@ from django.core.mail import send_mail
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth import get_user_model
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import AllowAny,IsAuthenticated
+from rest_framework.parsers import MultiPartParser,FormParser,JSONParser
 from rest_framework import status
 from .models import User,OTP,PendingUser
-from .serializers import Registerserializer
+from .serializers import (
+    Registerserializer,
+    JobSeekerProfileSerializer,
+    EmployerProfileSerializer,
+    CompanyProfileSerializer,
+)
 
 
 
@@ -32,13 +37,14 @@ class SignupRequestView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         email = serializer.validated_data["email"]
-        full_name = serializer.validated_data['full_name']
+        name = serializer.validated_data['name']
         password = serializer.validated_data["password"]
+        role = serializer.validated_data["role"]
         
         #temporarly saving data in PendingUser
         PendingUser.objects.update_or_create(
             email = email,
-            defaults={"full_name":full_name,"password":password}
+            defaults={"name":name,"password":password, "role" :role},
             )
         
         
@@ -87,8 +93,9 @@ class VerifyOTPView(APIView):
         
         user = User.objects.create_user(
             email= email,
-            full_name=pending_user.full_name,
-            password= pending_user.password
+            name=pending_user.name,
+            password= pending_user.password,
+            role = pending_user.role,
         )
         
         pending_user.delete()
@@ -126,14 +133,14 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        token['full_name'] = user.full_name
+        token["name"] = user.name
+        token["role"] = user.role
         return token
     
     def validate(self, attrs):
         try:
             data = super().validate(attrs)
         except AuthenticationFailed:
-            # 👇 Customize error message here
             raise AuthenticationFailed("Invalid email or password. Please try again.")
 
         return data
@@ -264,3 +271,39 @@ class ChangePasswordView(APIView):
         }, status=status.HTTP_200_OK)
 
 
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+    
+    def get(self, request):
+        user = request.user
+        if user.role == "jobseeker":
+            serializer = JobSeekerProfileSerializer(user.jobseeker_profile)
+        elif user.role == "employer":
+            serializer = EmployerProfileSerializer(user.employer_profile)
+        else :
+            serializer = CompanyProfileSerializer(user.company_profile)
+        return Response(serializer.data)
+    
+    def put(self, request):
+        user = request.user
+        if user.role == "jobseeker":
+            profile = user.jobseeker_profile
+            serializer = JobSeekerProfileSerializer(profile,data=request.data, partial=True)
+            data = request.data.copy()
+            if "resume" not in data:
+                data["resume"] = profile.resume
+            if "profile_picture" not in data:
+                data["profile_picture"] = profile.profile_picture
+                
+        elif user.role == "employer":
+            profile = user.employer_profile
+            serializer = EmployerProfileSerializer(profile, data=request.data, partial=True)
+        else :
+            profile = user.company_profile
+            serializer = CompanyProfileSerializer(profile, data=request.data, partial=True)
+            
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
