@@ -1,5 +1,6 @@
 #from django.shortcuts import render
 import random
+from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
 from django.utils import timezone
 from datetime import timedelta
@@ -11,16 +12,10 @@ from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import AllowAny,IsAuthenticated
 from rest_framework.parsers import MultiPartParser,FormParser,JSONParser
-from rest_framework import status
-from .models import User,OTP,PendingUser
-from .serializers import (
-    Registerserializer,
-    JobSeekerProfileSerializer,
-    EmployerProfileSerializer,
-    CompanyProfileSerializer,
-)
-
-
+from rest_framework import status,generics, permissions
+from .models import User,OTP,PendingUser,Follow
+from .serializers import Registerserializer,JobSeekerProfileSerializer,EmployerProfileSerializer,CompanyProfileSerializer,UserListSerializer,FollowSerializer
+    
 
 User = get_user_model()
 
@@ -307,3 +302,58 @@ class ProfileView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserListView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserListSerializer
+    permission_classes = [permissions.AllowAny]
+    
+    
+class ToggleFollowView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, user_id):
+        follower = request.user
+        following = get_object_or_404(User, id=user_id)
+        
+        if follower == following:
+            return Response({"error": "You cannot follow yourself."}, status=400)
+        
+        follow_relation = Follow.objects.filter(follower=follower, following=following).first()
+        
+        if follow_relation:
+            follow_relation.delete()
+            return Response({"message": f"You unfollowed {following.name}"}, status=200)
+        else:
+            Follow.objects.create(follower=follower, following=following)
+            return Response({"message": f"You are now following {following.name}"}, status=200)
+        
+class UnfollowView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, user_id):
+        target_user = get_object_or_404(User, id=user_id)
+
+        try:
+            follow = Follow.objects.get(follower=request.user, following=target_user)
+            follow.delete()
+            return Response({"message": f"You unfollowed {target_user.name}"})
+        except Follow.DoesNotExist:
+            return Response({"error": "You are not following this user."}, status=400)
+        
+class FollowersListView(generics.ListAPIView):
+    serializer_class = FollowSerializer
+    permission_classes = [permissions.AllowAny]
+    
+    def get_queryset(self):
+        user_id = self.kwargs["user_id"]
+        return Follow.objects.filter(following_id=user_id)
+    
+class FollowingListView(generics.ListAPIView):
+    serializer_class = FollowSerializer
+    permission_classes = [permissions.AllowAny]
+    
+    def get_queryset(self):
+        user_id = self.kwargs["user_id"]
+        return Follow.objects.filter(follower_id=user_id)

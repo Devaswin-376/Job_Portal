@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractBaseUser,PermissionsMixin,BaseUserManager
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
@@ -23,8 +24,7 @@ class UserManager(BaseUserManager):
     
     
     
-class User(AbstractBaseUser,PermissionsMixin):
-    
+class User(AbstractBaseUser,PermissionsMixin):  
     ROLE_CHOICES = [
         ("jobseeker", "Job seeker"),
         ("employer" , "Employer"),
@@ -97,3 +97,17 @@ class OTP(models.Model):
     
     def is_expired(self):
         return timezone.now() > self.created_at + timedelta(minutes=1)
+    
+  
+User = get_user_model() 
+class Follow(models.Model):
+    follower = models.ForeignKey(User,on_delete=models.CASCADE, related_name="following")
+    following = models.ForeignKey(User,on_delete=models.CASCADE, related_name="follower")
+    created_at = models.DateTimeField(default=timezone.now)
+    
+    class Meta:
+        unique_together = ("follower","following")  #Avoids duplicates
+        
+        def __str__(self):
+            return f"{self.follower} -> {self.following}"
+        

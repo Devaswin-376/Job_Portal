@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User,JobSeekerProfile, EmployerProfile, CompanyProfile
+from .models import User,JobSeekerProfile, EmployerProfile, CompanyProfile, Follow
 
 class Registerserializer(serializers.Serializer):
     name = serializers.CharField()
@@ -44,4 +44,29 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
         fields = ["email", "name", "description", "services", "location", "website", "logo"]
         
         
+class UserListSerializer(serializers.ModelSerializer):
+    followers_count = serializers.SerializerMethodField()
+    following_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ["id", "name", "email", "followers_count", "following_count"]
+
+    def get_followers_count(self, obj):
+        # Count how many users are following this user
+        return obj.follower.count()
+
+    def get_following_count(self, obj):
+        # Count how many users this user is following
+        return obj.following.count()
         
+class FollowSerializer(serializers.ModelSerializer):
+    follower_name = serializers.CharField(source = "follower.name", read_only=True)
+    following_name = serializers.CharField(source = "following.name", read_only = True)
+    
+    class Meta:
+        model = Follow
+        fields = [
+            "id", "follower","follower_name","following","following_name","created_at"
+        ]
+        read_only = ["id", "follower" ,"follower_name", "created_at"]
