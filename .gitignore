@@ -1,0 +1,56 @@
+# =========================
+# PYTHON / DJANGO
+# =========================
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.DS_Store
+*.swp
+
+# Django media/static
+backend/media/
+backend/static/
+backend/staticfiles/
+backend/*/migrations/__pycache__/
+
+# Virtual Environment
+venv/
+Lib/
+Scripts/
+pyvenv.cfg
+
+# Environment files
+.env
+.env.local
+*.env
+
+# =========================
+# NODE / REACT
+# =========================
+frontend/node_modules/
+frontend/build/
+frontend/.env
+frontend/.env.local
+frontend/.vite/
+frontend/dist/
+
+# Editor / System Files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+Thumbs.db
+
+# =========================
+# BACKUP / CACHE
+# =========================
+*.bak
+*.tmp
+*.cache
+*.log
