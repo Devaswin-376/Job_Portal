@@ -47,9 +47,7 @@ class EventImageDeleteView(generics.DestroyAPIView):
         return Response({"detail": "Image deleted successfully."})
     
     
-from rest_framework import generics, permissions, status
-from rest_framework.response import Response
-from .models import Event, EventReaction
+
 
 class EventReactionView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]

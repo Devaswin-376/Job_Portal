@@ -1,0 +1,234 @@
+.auth-container{
+  padding: 30px 10px;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    height:auto;
+    min-height: 100vh;
+    overflow-y: auto;
+    background: #f6f6f6;
+}
+
+.auth-card{
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    width: 380px;
+    padding: 20px;
+}
+
+.auth-card-otp{
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    width: 340px;
+    padding: 20px;
+}
+
+.logo {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.tabs {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.tabs button {
+    flex: 1;
+    padding: 10px;
+    font-weight: 600;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    border-radius: 8px;
+    color: #555;
+}
+
+.tabs button.active {
+    color: #0056d2;
+    border-bottom: 2px solid #7b7b7b77 ;
+    background-color: #eeeded77;
+}
+
+.form-content h3{
+    margin-bottom: 5px;
+}
+
+.form-content p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+form {
+    display: flex;
+    flex-direction:column;
+}
+
+label {
+  font-size: 14px;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+input, select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-bottom: 15px;
+  outline: none;
+}
+
+.btn-primary {
+  background: #1573cb;
+  color: #fff;
+  padding: 10px;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-primary:disabled {
+    background: #1573cb;   
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.btn-primary:hover {
+  background: #0056d2;
+}
+
+/* Resend OTP Button */
+.btn-secondary {
+  background: transparent;
+  color: #1573cb;
+  border: 2px solid #1573cb;
+  padding: 8px 0;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: 600;
+  width: 60%;
+  margin: 0 auto;
+  display: block;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: #1573cb;
+  color: #fff;
+  transform: scale(1.02);
+}
+
+.resend-btn {
+  margin-top: 10px;
+}
+
+
+.forgot {
+  text-align: right;
+  color: #007bff;
+  font-size: 13px;
+  text-decoration:none;
+  margin-bottom: 10px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.social-container {
+  text-align: center;
+  margin-top: 25px;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.line {
+  flex: 1;
+  margin:10px;
+}
+
+.text {
+  color: #777;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.social-icons {
+  display: flex;
+  justify-content:center;
+  gap: 35px;
+}
+
+.social-item {
+  text-align: center;
+  cursor: pointer;
+}
+
+.icon-circle {
+  width: 45px;
+  height: 45px;
+  background-color: #f4f4f4;
+  border-radius: 50%;
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.social-item p {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 200;
+  font-family:Arial, Helvetica, sans-serif;
+  color: #525151;
+}
+
+.form-content input[type="text"] {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-bottom: 15px;
+  font-size: 14px;
+  width: 100%;
+  outline: none;
+  box-sizing: border-box;
+}
+
+/* Resend OTP link */
+.form-content .resend-otp {
+  text-align: center;
+  color: #1573cb;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.form-content .resend-otp:hover {
+  text-decoration: underline;
+}
+
+/* Success / Error messages */
+.form-content .message {
+  text-align: center;
+  font-size: 13px;
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+

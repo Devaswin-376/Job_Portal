@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User,JobSeekerProfile, EmployerProfile, CompanyProfile, Follow
+from .models import User,JobSeekerProfile, EmployerProfile, CompanyProfile, Follow,Notification
 
 class Registerserializer(serializers.Serializer):
     name = serializers.CharField()
@@ -20,10 +20,11 @@ class JobSeekerProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = JobSeekerProfile
-        fields = ["email", "name", "skills", "qualification", "resume", "profile_picture"]
+        fields = ["email", "name", "skills", "qualification","bio", "resume", "profile_picture","cover_picture", "projects", "courses", "location"]
         extra_kwargs = {
             "resume" : {"required" : False},
-            "profile_picture" : {"required" : False}
+            "profile_picture" : {"required" : False},
+            "cover_picture" : {"required" : False},
         }
         
 class EmployerProfileSerializer(serializers.ModelSerializer):
@@ -32,7 +33,11 @@ class EmployerProfileSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = EmployerProfile
-        fields = ["email", "name", "company_name", "department" , "designation"]
+        fields = ["email", "name", "company_name", "department" , "designation","profile_picture","bio","cover_picture", "qualification", "location"]
+        extra_kwargs = {
+            "profile_picture" : {"required" : False},
+            "cover_picture" : {"required" : False},
+        }
         
         
 class CompanyProfileSerializer(serializers.ModelSerializer):
@@ -41,7 +46,7 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = CompanyProfile
-        fields = ["email", "name", "description", "services", "location", "website", "logo"]
+        fields = ["email", "name", "bio", "services", "location", "website", "logo", "cover_picture","peoples"]
         
         
 class UserListSerializer(serializers.ModelSerializer):
@@ -70,3 +75,11 @@ class FollowSerializer(serializers.ModelSerializer):
             "id", "follower","follower_name","following","following_name","created_at"
         ]
         read_only = ["id", "follower" ,"follower_name", "created_at"]
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ["id", "sender", "event", "message", "is_read", "created_at"]
+        read_only = ["id", "sender", "event", "message", "created_at"]
+        

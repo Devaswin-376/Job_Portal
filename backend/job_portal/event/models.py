@@ -57,3 +57,4 @@ class EventComment(models.Model):
     def __str__(self):
         return f"{self.user} commented on {self.event.title}"
         
+        

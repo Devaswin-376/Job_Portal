@@ -6,7 +6,7 @@ class EventImageSerializer(serializers.ModelSerializer):
         model = EventImage
         fields = [
             "id" , "image"
-        ]
+        ]   
         
         
 class EventSerializer(serializers.ModelSerializer):

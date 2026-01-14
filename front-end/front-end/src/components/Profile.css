@@ -1,0 +1,85 @@
+.profile-container {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+  background: #f3f6f9;
+  height: 100vh;
+}
+
+.profile-card {
+  display: flex;
+  background: white;
+  width: 850px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.profile-left {
+  background: #eef3f8;
+  width: 35%;
+  text-align: center;
+  padding: 30px;
+}
+
+.profile-pic {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 15px;
+}
+
+.profile-left h2 {
+  margin: 10px 0 5px;
+  font-size: 20px;
+}
+
+.profile-left p {
+  color: gray;
+  margin-bottom: 15px;
+}
+
+.profile-right {
+  flex: 1;
+  padding: 30px;
+}
+
+.edit-form label {
+  display: block;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.edit-form input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.save-btn, .cancel-btn, .edit-btn {
+  background-color: #0a66c2;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  margin-top: 15px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background-color: gray;
+  margin-left: 10px;
+}
+
+.status-msg {
+  margin-top: 15px;
+  font-weight: bold;
+  color: green;
+}
+
+.profile-details p {
+  margin-bottom: 10px;
+}

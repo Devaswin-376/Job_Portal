@@ -10,7 +10,8 @@ class JobFilter(django_filters.FilterSet):
     job_type = django_filters.ChoiceFilter(choices=JobPost.JOB_TYPES)
     company_name = django_filters.CharFilter(field_name="company_name",lookup_expr='icontains')
     posted_after = django_filters.DateFilter(field_name="created_at", lookup_expr='gte')
+    posted_before = django_filters.DateFilter(field_name="created_at", lookup_expr='lte')
     
     class Meta:
         model = JobPost
-        fields = ['salary','location','experience','job_type','company_name']
+        fields = ['salary','location','experience','job_type','company_name','posted_after', 'posted_before']

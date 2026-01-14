@@ -1,3 +1,4 @@
+import math as m
 from django.contrib.auth.models import AbstractBaseUser,PermissionsMixin,BaseUserManager
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -5,6 +6,7 @@ from django.utils import timezone
 from django.conf import settings
 from datetime import timedelta
 import random
+from event.models import Event
 
 
 class UserManager(BaseUserManager):
@@ -51,6 +53,12 @@ class JobSeekerProfile(models.Model):
     qualification = models.CharField(max_length=255, blank=True, null= True)
     resume = models.FileField(blank=True,null=True,upload_to="resumes/")
     profile_picture = models.ImageField(blank=True, null=True,upload_to="profile_pics/")
+    cover_picture = models.ImageField(blank=True, null=True,upload_to="cover_pics/")
+    bio = models.TextField(blank=True, null=True)
+    projects = models.TextField(blank=True, null=True)
+    courses = models.TextField(blank=True, null=True)
+    location = models.CharField(max_length=255,blank=True, null= True)
+    
     
     def __str__(self):
         return f"JobSeeker : {self.user.name}"
@@ -59,18 +67,25 @@ class EmployerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="employer_profile")
     company_name = models.CharField(max_length=255, blank=True, null=True)
     department = models.CharField(max_length=255,blank=True, null=True)
-    designation = models.CharField(max_length=255, blank=True, null=True)   
+    designation = models.CharField(max_length=255, blank=True, null=True)
+    profile_picture = models.ImageField(blank=True, null=True,upload_to="profile_pics/")
+    cover_picture = models.ImageField(blank=True, null=True,upload_to="cover_pics/")   
+    bio = models.TextField(blank=True, null=True)
+    qualification = models.CharField(max_length=255, blank=True, null=True)
+    location = models.CharField(max_length=255,blank=True, null= True)
     
     def __str__(self):
         return f"Employer : {self.user.name}"
     
 class CompanyProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="company_profile")
-    description = models.TextField(blank=True, null=True)
+    bio = models.TextField(blank=True, null=True)
     services = models.CharField(max_length=255,blank=True,null=True)
     location = models.CharField(max_length=255,blank=True, null= True)
     website = models.URLField(blank=True, null=True)
     logo = models.ImageField(upload_to="company_logos/",blank=True,null=True)
+    cover_picture = models.ImageField(blank=True, null=True,upload_to="cover_pics/")
+    peoples = models.CharField(max_length=100, blank=True, null=True)   
     
     def __str__(self):
         return f"Company : {self.user.name}"
@@ -111,3 +126,17 @@ class Follow(models.Model):
         def __str__(self):
             return f"{self.follower} -> {self.following}"
         
+        
+class Notification(models.Model):
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_notifications")
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="notifications")
+    message = models.CharField(max_length=255)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.sender} -> {self.recipient} : {self.message}"

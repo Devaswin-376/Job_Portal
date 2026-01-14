@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied,ValidationError
 from django.utils import timezone
 from django.db import IntegrityError
+from django.core.mail import send_mail
+from django.conf import settings
 from .models import JobPost,JobApplication
 from .serializers import JobPostSerializer, JobApplicationSerializer
 from account.models import JobSeekerProfile
@@ -43,6 +45,11 @@ class JobPostListCreateView(generics.ListCreateAPIView):
             company_name = employer_profile.company_name if employer_profile else None
 
         serializer.save(posted_by = user, company_name=company_name)
+        
+    def get_serializer_context(self):
+        ctx = super().get_serializer_context()
+        ctx.update({"request": self.request})
+        return ctx
 
 
 class JobPostDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -88,9 +95,20 @@ class JobApplicationCreateView(generics.CreateAPIView):
                 pass  # no profile → skip (resume stays null)
         
         try:
-            serializer.save(applicant=user)
+            application = serializer.save(applicant=user)
         except IntegrityError:
             return Response({"error" : "You have already applied for this job."}, status=400)
+        
+        job_title = application.job.title
+        company_name = application.job.company_name or "the employer"
+        
+        send_mail(
+            subject=f"Application Submitted for {job_title}",
+            message=f"Dear {user.name},\n\nYour application for the position '{job_title}' at {company_name} has been successfully submitted.\n\nThank you for applying!\n\nBest regards,\nJob Portal Team",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=True,
+        )
         
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=201, headers=headers)
@@ -128,7 +146,7 @@ class JobViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filter_class = JobFilter
     
-    search_fields = ['title', 'description', 'location', 'company_name','qualification','experience','salary']
+    search_fields = ['title', 'description', 'location', 'company_name','qualification','experience','salary','created_at']
     
     ordering_fields = ['salary','created_at','title','experience','company_name', 'deadline']
     ordering = ['-created_at']
@@ -160,4 +178,31 @@ class JobViewSet(viewsets.ModelViewSet):
         serializer.save(posted_by = user, company_name=company_name)
 
     
+    
+class AcceptApplicationView(generics.UpdateAPIView):
+    queryset = JobApplication.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = JobApplicationSerializer
+
+    def update(self, request, *args, **kwargs):
+        application = self.get_object()
+        job = application.job
+
+        if request.user != job.posted_by:
+            raise PermissionDenied("You are not allowed to accept this application.")
+
+        application.status = JobApplication.STATUS_ACCEPTED
+        application.save()
+
+        # ✅ Send email to jobseeker
+        send_mail(
+            subject=f"Your Application for {job.title} has been Accepted!",
+            message=f"Dear {application.applicant.name},\n\nCongratulations! Your application for the job '{job.title}' at {job.company_name or 'the employer'} has been short-listed.\n\nThey may contact you soon for the next steps.\n\nBest wishes,\nJob Portal Team",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[application.applicant.email],
+            fail_silently=True,
+        )
+
+        return Response({"message": "Application accepted and email sent."}, status=200)
+
     

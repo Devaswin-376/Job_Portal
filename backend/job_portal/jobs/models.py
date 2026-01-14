@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from account.models import EmployerProfile,CompanyProfile
 # Create your models here.
 
 User = settings.AUTH_USER_MODEL
@@ -29,6 +30,13 @@ class JobPost(models.Model):
         related_name= "jobs_posted"
     )
     
+    logo = models.ForeignKey(
+        'account.CompanyProfile',
+        on_delete=models.SET_NULL,
+        related_name="job_logo",
+        blank=True,
+        null=True
+    )
     company_name = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -51,8 +59,25 @@ class JobApplication(models.Model):
     resume = models.FileField(upload_to="applications/resumes/", blank=True, null=True)
     applied_at = models.DateTimeField(auto_now_add=True)
     
+    STATUS_PENDING = "PENDING"
+    STATUS_ACCEPTED = "ACCEPTED"
+    STATUS_REJECTED = "REJECTED"
+
+    STATUS_CHOICES = [
+        (STATUS_PENDING, "Pending"),
+        (STATUS_ACCEPTED, "Accepted"),
+        (STATUS_REJECTED, "Rejected"),
+    ]
+    
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    
     class Meta:
         unique_together = ("job", "applicant") #Avoids duplicate applications
         
+    def accept(self):
+        self.status = self.STATUS_ACCEPTED
+        self.save()
+        
     def __str__(self):
-        return f"{self.applicant.name} -> {self.job.title}"
+        return f"{str(self.applicant)} -> {self.job.title}"
+    

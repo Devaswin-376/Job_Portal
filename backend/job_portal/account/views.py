@@ -13,8 +13,8 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import AllowAny,IsAuthenticated
 from rest_framework.parsers import MultiPartParser,FormParser,JSONParser
 from rest_framework import status,generics, permissions
-from .models import User,OTP,PendingUser,Follow
-from .serializers import Registerserializer,JobSeekerProfileSerializer,EmployerProfileSerializer,CompanyProfileSerializer,UserListSerializer,FollowSerializer
+from .models import User,OTP,PendingUser,Follow,Notification
+from .serializers import Registerserializer,JobSeekerProfileSerializer,EmployerProfileSerializer,CompanyProfileSerializer,UserListSerializer,FollowSerializer, NotificationSerializer
     
 
 User = get_user_model()
@@ -135,6 +135,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         try:
             data = super().validate(attrs)
+            data['role'] = self.user.role
         except AuthenticationFailed:
             raise AuthenticationFailed("Invalid email or password. Please try again.")
 
@@ -290,13 +291,25 @@ class ProfileView(APIView):
                 data["resume"] = profile.resume
             if "profile_picture" not in data:
                 data["profile_picture"] = profile.profile_picture
+            if "cover_picture" not in data:
+                data["cover_picture"] = profile.cover_picture
                 
         elif user.role == "employer":
             profile = user.employer_profile
             serializer = EmployerProfileSerializer(profile, data=request.data, partial=True)
+            data = request.data.copy()
+            if "profile_picture" not in data:
+                data["profile_picture"] = profile.profile_picture
+            if "cover_picture" not in data:
+                data["cover_picture"] = profile.cover_picture
         else :
             profile = user.company_profile
             serializer = CompanyProfileSerializer(profile, data=request.data, partial=True)
+            data = request.data.copy()
+            if "logo" not in data:
+                data["logo"] = profile.logo
+            if "cover_picture" not in data:
+                data["cover_picture"] = profile.cover_picture
             
         if serializer.is_valid():
             serializer.save()
@@ -357,3 +370,25 @@ class FollowingListView(generics.ListAPIView):
     def get_queryset(self):
         user_id = self.kwargs["user_id"]
         return Follow.objects.filter(follower_id=user_id)
+    
+    
+class NotificationListView(generics.ListAPIView):
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        user = self.request.user
+        return Notification.objects.filter(recipient=user).order_by('-created_at')
+    
+    
+class MarkNotificationAsReadView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, notification_id):
+        try: 
+            notification = Notification.objects.get(id=notification_id, recipient=request.user)
+            notification.is_read = True
+            notification.save()
+            return Response({"status": "marked as read."}, status=status.HTTP_200_OK)
+        except Notification.DoesNotExist:
+            return Response({"error": "Notification not found."}, status=status.HTTP_404_NOT_FOUND)

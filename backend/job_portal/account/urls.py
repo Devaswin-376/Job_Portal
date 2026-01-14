@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import SignupRequestView,LoginView,ForgotPasswordView,VerifyOTPView,ResendOTPView,ResetPasswordView,VerifyPasswordResetOTPView,ChangePasswordView,ProfileView,FollowersListView,FollowingListView,UserListView,ToggleFollowView,UnfollowView
+from .views import SignupRequestView,LoginView,ForgotPasswordView,VerifyOTPView,ResendOTPView,ResetPasswordView,VerifyPasswordResetOTPView,ChangePasswordView,ProfileView,FollowersListView,FollowingListView,UserListView,ToggleFollowView,UnfollowView,NotificationListView,MarkNotificationAsReadView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
@@ -22,5 +22,7 @@ urlpatterns = [
     path("users/<int:user_id>/unfollow/", UnfollowView.as_view(), name="unfollow"),
     path("users/<int:user_id>/followers/", FollowersListView.as_view(), name="followers-list"),
     path("users/<int:user_id>/following/", FollowingListView.as_view(), name="following-list"),
+    path("notifications/", NotificationListView.as_view(), name="notification-list"),
+    path("notifications/<int:notification_id>/read/", MarkNotificationAsReadView.as_view(), name="mark-notification-read"),
 ] 
 
