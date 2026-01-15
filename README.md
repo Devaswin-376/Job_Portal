@@ -1,7 +1,7 @@
 # Job Portal 
----
 A job portal system built in Python-Django as backend and DRF for API design,React and tailwindcss used for frontend design.
 
+---
 ## Features
 * User registration & login (JWT authentication)
 * OTP based email verification
@@ -17,6 +17,7 @@ A job portal system built in Python-Django as backend and DRF for API design,Rea
 * JWT authentication
 * React + vite
 * Postman
+---
 
 ### 👤 Author
   
