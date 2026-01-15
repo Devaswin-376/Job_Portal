@@ -33,8 +33,8 @@ This repository contains the backend API for the Zecser Job Portal, built using 
 ## Authentication
 * JWT authentication
 * Login return access and refresh tokens
-* Protected API requires #999999 Authorization: Bearer <access_token>
-
+* Protected API requires  Authorization: Bearer <access_token>
+---
 ### 👤 Author
   
 Devaswin K.S<br>
